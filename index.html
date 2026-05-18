@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>APTV Revive</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;600;700&display=swap" rel="stylesheet">
+
+<style>
+body{
+margin:0;
+font-family:'Montserrat',sans-serif;
+background:#0b0f1a;
+color:white;
+}
+
+.container{
+width:380px;
+margin:20px auto;
+padding:18px;
+border-radius:20px;
+background:rgba(255,255,255,0.06);
+backdrop-filter:blur(18px);
+}
+
+.controls{
+display:flex;
+flex-wrap:wrap;
+gap:6px;
+}
+
+.controls button{
+flex:1;
+padding:6px;
+border-radius:10px;
+border:none;
+background:rgba(255,255,255,0.1);
+color:white;
+font-weight:700;
+cursor:pointer;
+}
+
+.channel-card{
+padding:12px;
+border-radius:12px;
+text-align:center;
+background:rgba(255,255,255,0.08);
+cursor:pointer;
+transition:0.2s;
+}
+
+.channel-card:hover{
+background:rgba(255,255,255,0.2);
+}
+
+#channelGrid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:10px;
+margin:10px 0;
+}
+
+#player{
+width:100%;
+height:210px;
+border-radius:12px;
+}
+
+#status{
+margin-top:10px;
+font-size:13px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>APTV Revive</h2>
+
+<div class="controls">
+
+<!-- PLAY CONTROLS -->
+<button onclick="playCurrent()">▶️</button>
+<button onclick="pauseCurrent()">⏸</button>
+<button onclick="next()">⏭</button>
+
+<!-- CHANNEL BUTTONS -->
+<button onclick="jumpToChannel(2)">2</button>
+<button onclick="jumpToChannel(3)">3</button>
+<button onclick="jumpToChannel(4)">4</button>
+<button onclick="jumpToChannel(5)">5</button>
+<button onclick="jumpToChannel(7)">7</button>
+<button onclick="jumpToChannel(8)">8</button>
+<button onclick="jumpToChannel(12)">12</button>
+<button onclick="jumpToChannel(22)">22</button>
+<button onclick="jumpToChannel(24)">24</button>
+<button onclick="jumpToChannel(30)">30</button>
+<button onclick="jumpToChannel(31)">31</button>
+<button onclick="jumpToChannel(32)">32</button>
+<button onclick="jumpToChannel(35)">35</button>
+<button onclick="jumpToChannel(38)">38</button>
+<button onclick="jumpToChannel(55)">55</button>
+
+</div>
+
+<div id="channelGrid"></div>
+<div id="status">NO SIGNAL</div>
+<div id="player"></div>
+
+</div>
+
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<script>
+
+// ========= UTIL =========
+function getVideoId(url){
+
+try{
+
+const u=new URL(url);
+
+if(u.hostname.includes("youtu.be"))
+return u.pathname.slice(1);
+
+if(u.searchParams.get("v"))
+return u.searchParams.get("v");
+
+if(u.pathname.includes("/live/"))
+return u.pathname.split("/live/")[1];
+
+}catch{}
+
+return null;
+
+}
+
+// ========= CHANNELS =========
+const channels=[
+
+{
+channel:2,
+name:"UNTV",
+playlist:[
+"https://www.youtube.com/live/eDZR3ggrXBs"
+]
+},
+
+{
+channel:3,
+name:"Musica de Atenya",
+playlist:[
+"https://youtu.be/NC91hzXiL9Q",
+"https://youtu.be/9EHAo6rEuas",
+"https://youtu.be/jjnmICxvoVY",
+"https://youtu.be/asM-gfPENDU",
+"https://youtu.be/5_r6yp8xGa0"
+]
+},
+
+{
+channel:4,
+name:"DZRH",
+playlist:[
+"https://www.youtube.com/live/6Nyc4xIUraQ"
+]
+},
+
+{
+channel:5,
+name:"PlayTV",
+playlist:[
+"https://youtu.be/hTLqJSvNF3Q",
+"https://youtu.be/jtggWhNgLs8"
+]
+},
+
+{
+channel:7,
+name:"ABC7",
+playlist:[
+"https://www.youtube.com/live/s3iVFJoxrYc"
+]
+},
+
+{
+channel:8,
+name:"Al Jazeera",
+playlist:[
+"https://www.youtube.com/live/gCNeDWCI0vo"
+]
+},
+
+{
+channel:12,
+name:"NBC",
+playlist:[
+"https://www.youtube.com/live/6W_J1wT3stE"
+]
+},
+
+{
+channel:22,
+name:"The Entertainer",
+playlist:[
+"https://youtu.be/ImjQjMCyJr4",
+"https://youtu.be/vNtKVuVSsyk"
+]
+},
+
+{
+channel:24,
+name:"AMTV",
+playlist:[
+"https://youtu.be/bU3SuCUFfNc?si=G1gVQnRf4GPwoe2y"
+]
+},
+
+{
+channel:30,
+name:"Miraculous",
+playlist:[
+"https://www.youtube.com/live/WuS3O7AcciE"
+]
+},
+
+{
+channel:31,
+name:"Big City Greens",
+playlist:[
+"https://www.youtube.com/live/B_5RPAixkG4"
+]
+},
+
+{
+channel:32,
+name:"Phineas & Ferb",
+playlist:[
+"https://www.youtube.com/live/_HviSyC7zSU"
+]
+},
+
+{
+channel:35,
+name:"Bluey TV",
+playlist:[
+"https://www.youtube.com/live/RHUauMcYlX0"
+]
+},
+
+{
+channel:38,
+name:"Ben and Holly",
+playlist:[
+"https://www.youtube.com/live/T6IJthQv4YA"
+]
+},
+
+{
+channel:55,
+name:"ViSTA TV",
+playlist:[
+"https://www.youtube.com/live/VhKh0aI3N84?si=kp55YcOjLil_JiD3"
+]
+}
+
+];
+
+// ========= STATE =========
+let player,currentChannel=null,index=0,ready=false;
+let shuffleOrders={},shuffleIndex=0;
+
+// ========= INIT =========
+window.onYouTubeIframeAPIReady=function(){
+
+player=new YT.Player("player",{
+
+playerVars:{
+autoplay:1
+},
+
+events:{
+onReady:()=>{
+ready=true;
+buildUI();
+},
+
+onStateChange:onStateChange,
+onError:onError
+}
+
+});
+
+};
+
+// ========= UI =========
+function buildUI(){
+
+const grid=document.getElementById("channelGrid");
+
+channels.forEach(ch=>{
+
+const div=document.createElement("div");
+
+div.className="channel-card";
+div.innerText=`CH ${ch.channel} - ${ch.name}`;
+
+div.onclick=()=>jumpToChannel(ch.channel);
+
+grid.appendChild(div);
+
+});
+
+}
+
+// ========= PLAY =========
+function play(){
+
+if(!currentChannel) return;
+
+const key=currentChannel.channel;
+const list=currentChannel.playlist;
+
+if(!shuffleOrders[key]){
+
+shuffleOrders[key]=[...Array(list.length).keys()]
+.sort(()=>Math.random()-0.5);
+
+shuffleIndex=0;
+
+}
+
+const i=shuffleOrders[key][shuffleIndex];
+const id=getVideoId(list[i]);
+
+if(!id){
+next();
+return;
+}
+
+player.loadVideoById(id);
+
+document.getElementById("status").innerText=
+`CH ${currentChannel.channel} - ${currentChannel.name}`;
+
+}
+
+// ========= CONTROLS =========
+function playCurrent(){
+
+if(!currentChannel) return;
+
+if(player.getPlayerState()===YT.PlayerState.PAUSED){
+
+player.playVideo();
+
+}else{
+
+play();
+
+}
+
+}
+
+function pauseCurrent(){
+player.pauseVideo();
+}
+
+// ========= NEXT =========
+function next(){
+
+const key=currentChannel.channel;
+
+shuffleIndex++;
+
+if(shuffleIndex>=shuffleOrders[key].length){
+
+shuffleOrders[key]=
+[...Array(currentChannel.playlist.length).keys()]
+.sort(()=>Math.random()-0.5);
+
+shuffleIndex=0;
+
+}
+
+play();
+
+}
+
+// ========= SWITCH =========
+function jumpToChannel(num){
+
+if(!ready) return;
+
+currentChannel=
+channels.find(c=>c.channel===num);
+
+shuffleIndex=0;
+
+delete shuffleOrders[num];
+
+document.getElementById("status").innerText=
+"Switching...";
+
+setTimeout(play,300);
+
+}
+
+// ========= EVENTS =========
+function onStateChange(e){
+
+if(e.data===YT.PlayerState.ENDED)
+next();
+
+}
+
+function onError(){
+
+document.getElementById("status").innerText=
+"Skipping...";
+
+setTimeout(next,400);
+
+}
+
+</script>
+
+</body>
+</html>

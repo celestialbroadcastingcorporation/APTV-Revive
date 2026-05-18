@@ -64,6 +64,7 @@ margin:10px 0;
 width:100%;
 height:210px;
 border-radius:12px;
+overflow:hidden;
 }
 
 #status{
@@ -93,6 +94,7 @@ font-size:13px;
 <button onclick="jumpToChannel(5)">5</button>
 <button onclick="jumpToChannel(7)">7</button>
 <button onclick="jumpToChannel(8)">8</button>
+<button onclick="jumpToChannel(9)">9</button>
 <button onclick="jumpToChannel(12)">12</button>
 <button onclick="jumpToChannel(22)">22</button>
 <button onclick="jumpToChannel(24)">24</button>
@@ -150,7 +152,7 @@ playlist:[
 
 {
 channel:3,
-name:"AMTV",
+name:"Musica de Atenya",
 playlist:[
 "https://youtu.be/NC91hzXiL9Q",
 "https://youtu.be/9EHAo6rEuas",
@@ -194,6 +196,14 @@ playlist:[
 },
 
 {
+channel:9,
+name:"SENATE OF THE PHILIPPINES",
+playlist:[
+"https://www.youtube.com/live/cr0j7Pvr49o?si=62rLwd5A02fWRxm7"
+]
+},
+
+{
 channel:12,
 name:"NBC",
 playlist:[
@@ -212,7 +222,7 @@ playlist:[
 
 {
 channel:24,
-name:"AMN",
+name:"AMTV",
 playlist:[
 "https://youtu.be/bU3SuCUFfNc?si=G1gVQnRf4GPwoe2y"
 ]
@@ -277,8 +287,13 @@ window.onYouTubeIframeAPIReady=function(){
 
 player=new YT.Player("player",{
 
+height:"210",
+width:"100%",
+
 playerVars:{
-autoplay:1
+autoplay:1,
+controls:1,
+rel:0
 },
 
 events:{
@@ -370,6 +385,8 @@ player.pauseVideo();
 
 // ========= NEXT =========
 function next(){
+
+if(!currentChannel) return;
 
 const key=currentChannel.channel;
 
